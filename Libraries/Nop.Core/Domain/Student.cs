@@ -4,9 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Nop.Core
+namespace Nop.Core.Domain
 {
-    public class Class1
+    public class Student : BaseEntity
     {
+        public string name;
+        public int age;
     }
 }
