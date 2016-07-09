@@ -8,7 +8,7 @@ namespace Nop.Core.Domain
 {
     public class Student : BaseEntity
     {
-        public string name;
-        public int age;
+        public string Name { get; set; }
+        public int Age{get;set;}
     }
 }

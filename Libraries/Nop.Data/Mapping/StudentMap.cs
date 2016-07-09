@@ -13,7 +13,7 @@ namespace Nop.Data.Mapping
         public StudentMap()
         {
             this.ToTable("Student");
-            this.Property(s => s.name).HasMaxLength(50);
+            this.Property(s => s.Name).HasMaxLength(50);
         }
     }
 }
