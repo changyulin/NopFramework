@@ -15,8 +15,12 @@ namespace Nop.Data
 {
     public class ObjectContext : DbContext, IDbContext
     {
-        public ObjectContext() : base("name=nop") { }
-        public ObjectContext(string nameOrConnectionString) : base(nameOrConnectionString) { }
+        public ObjectContext() : base("name=nop") { Database.SetInitializer(new DropCreateDatabaseIfModelChanges<ObjectContext>()); }
+        public ObjectContext(string nameOrConnectionString)
+            : base(nameOrConnectionString)
+        {
+            Database.SetInitializer(new DropCreateDatabaseIfModelChanges<ObjectContext>());
+        }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {

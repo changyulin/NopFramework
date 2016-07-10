@@ -78,6 +78,7 @@
   <ItemGroup>
     <Compile Include="BaseEntity.cs" />
     <Compile Include="Configuration\NopConfig.cs" />
+    <Compile Include="Domain\JxCode.cs" />
     <Compile Include="Domain\Student.cs" />
     <Compile Include="Infrastructure\AppDomainTypeFinder.cs" />
     <Compile Include="Infrastructure\ContainerManager.cs" />

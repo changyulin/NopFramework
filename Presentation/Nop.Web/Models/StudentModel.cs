@@ -15,7 +15,7 @@ namespace Nop.Web.Models
         public string Name { get; set; }
 
         [Display(Name = "年龄")]
-        public int Age { get; set; }
+        public int? Age { get; set; }
 
     }
 }
