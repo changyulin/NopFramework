@@ -13,11 +13,17 @@ namespace Nop.Core.Domain
 
         public string Code { get; set; }
 
+        public string College { get; set; }
+
+        public string Major { get; set; }
+
+        public string Grade { get; set; }
+
+        public string StudNo { get; set; }
+
         public bool IsValid { get; set; }
 
-        public int MapCustomCount { get; set; }
-
-        public bool IsMapFull { get; set; }
+        public bool IsUsed { get; set; }
 
         public virtual ICollection<Student> Students
         {
