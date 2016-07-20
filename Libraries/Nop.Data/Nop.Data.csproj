@@ -50,7 +50,10 @@
     <Compile Include="EfRepository.cs" />
     <Compile Include="IDbContext.cs" />
     <Compile Include="IRepository.cs" />
-    <Compile Include="Mapping\JxCodeMap.cs" />
+    <Compile Include="Mapping\Customers\CustomerMap.cs" />
+    <Compile Include="Mapping\Customers\CustomerRoleMap.cs" />
+    <Compile Include="Mapping\Customers\JxCodeMap.cs" />
+    <Compile Include="Mapping\Security\PermissionRecordMap.cs" />
     <Compile Include="Mapping\StudentMap.cs" />
     <Compile Include="ObjectContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -78,7 +78,13 @@
   <ItemGroup>
     <Compile Include="BaseEntity.cs" />
     <Compile Include="Configuration\NopConfig.cs" />
-    <Compile Include="Domain\JxCode.cs" />
+    <Compile Include="Domain\Customers\Customer.cs" />
+    <Compile Include="Domain\Customers\CustomerRole.cs" />
+    <Compile Include="Domain\Customers\JxCode.cs" />
+    <Compile Include="Domain\Customers\PasswordFormatEnum.cs" />
+    <Compile Include="Domain\Security\DefaultPermissionRecord.cs" />
+    <Compile Include="Domain\Security\PermissionRecord.cs" />
+    <Compile Include="Domain\Security\SystemCustomerRoleNames.cs" />
     <Compile Include="Domain\Student.cs" />
     <Compile Include="Infrastructure\AppDomainTypeFinder.cs" />
     <Compile Include="Infrastructure\ContainerManager.cs" />
