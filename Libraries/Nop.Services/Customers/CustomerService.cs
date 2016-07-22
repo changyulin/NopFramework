@@ -1,4 +1,6 @@
-﻿using Nop.Core.Domain.Customers;
+﻿using Nop.Core.Caching;
+using Nop.Core.Domain.Customers;
+using Nop.Core.Domain.Security;
 using Nop.Data;
 using System;
 using System.Collections.Generic;
@@ -10,14 +12,36 @@ namespace Nop.Services.Customers
 {
     public class CustomerService : ICustomerService
     {
+        /// <summary>
+        /// Key for caching
+        /// </summary>
+        /// <remarks>
+        /// {0} : show hidden records?
+        /// </remarks>
+        private const string CUSTOMERROLES_ALL_KEY = "Nop.customerrole.all-{0}";
+        /// <summary>
+        /// Key for caching
+        /// </summary>
+        /// <remarks>
+        /// {0} : system name
+        /// </remarks>
+        private const string CUSTOMERROLES_BY_SYSTEMNAME_KEY = "Nop.customerrole.systemname-{0}";
+        /// <summary>
+        /// Key pattern to clear cache
+        /// </summary>
+        private const string CUSTOMERROLES_PATTERN_KEY = "Nop.customerrole.";
+
         private readonly IRepository<Customer> _customerRepository;
         private readonly IRepository<CustomerRole> _customerRoleRepository;
+        private readonly ICacheManager _cacheManager;
 
         public CustomerService(IRepository<Customer> customerRepository,
-            IRepository<CustomerRole> customerRoleRepository)
+            IRepository<CustomerRole> customerRoleRepository,
+            ICacheManager cacheManager)
         {
             this._customerRepository = customerRepository;
             this._customerRoleRepository = customerRoleRepository;
+            this._cacheManager = cacheManager;
         }
 
         public void DeleteCustomer(Customer customer)
@@ -84,7 +108,23 @@ namespace Nop.Services.Customers
 
         public Customer InsertGuestCustomer()
         {
-            throw new NotImplementedException();
+            var customer = new Customer
+            {
+                CustomerGuid = Guid.NewGuid(),
+                Active = true,
+                CreatedOnUtc = DateTime.UtcNow,
+                LastActivityDateUtc = DateTime.UtcNow,
+            };
+
+            //add to 'Guests' role
+            var guestRole = GetCustomerRoleBySystemName(SystemCustomerRoleNames.Guests);
+            if (guestRole == null)
+                throw new Exception("'Guests' role could not be loaded");
+            customer.CustomerRoles.Add(guestRole);
+
+            _customerRepository.Insert(customer);
+
+            return customer;
         }
 
         public void InsertCustomer(Customer customer)
@@ -109,7 +149,19 @@ namespace Nop.Services.Customers
 
         public CustomerRole GetCustomerRoleBySystemName(string systemName)
         {
-            throw new NotImplementedException();
+            if (String.IsNullOrWhiteSpace(systemName))
+                return null;
+
+            string key = string.Format(CUSTOMERROLES_BY_SYSTEMNAME_KEY, systemName);
+            return _cacheManager.Get(key, () =>
+            {
+                var query = from cr in _customerRoleRepository.Table
+                            orderby cr.Id
+                            where cr.SystemName == systemName
+                            select cr;
+                var customerRole = query.FirstOrDefault();
+                return customerRole;
+            });
         }
 
         public IList<CustomerRole> GetAllCustomerRoles(bool showHidden = false)

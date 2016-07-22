@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Nop.Core.Domain;
+using Nop.Core.Domain.Customers;
 using Nop.Core.Infrastructure;
 using Nop.Web.Models;
 using System;
@@ -14,6 +15,7 @@ namespace Nop.Web.Infrastructure
         public void Execute()
         {
             Mapper.Initialize(cfg => cfg.CreateMap<StudentModel, Student>());
+            Mapper.Initialize(cfg => cfg.CreateMap<RegisterViewModel, Customer>());
         }
 
         public int Order

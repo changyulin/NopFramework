@@ -11,6 +11,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Nop.Core.Caching;
+using Nop.Services.Customers;
+using Nop.Services.Authentication;
+using Nop.Core;
+using Nop.Services.Security;
 
 namespace Nop.Web.Framework
 {
@@ -19,15 +24,17 @@ namespace Nop.Web.Framework
 
         public virtual void Register(ContainerBuilder builder, ITypeFinder typeFinder, NopConfig config)
         {
-            //builder.Register<IDbContext>(c => new ObjectContext()).InstancePerLifetimeScope();
+            builder.Register(c => new HttpContextWrapper(HttpContext.Current) as HttpContextBase).As<HttpContextBase>().InstancePerLifetimeScope();
+            builder.RegisterType<MemoryCacheManager>().As<ICacheManager>().InstancePerLifetimeScope();
             builder.RegisterType<ObjectContext>().As<IDbContext>().InstancePerLifetimeScope();
-            //builder.RegisterType<Student>().InstancePerLifetimeScope();
-            //builder.Register(o => new Student()).InstancePerLifetimeScope();
-            //builder.Register<IRepository<Student>>(c => new EfRepository<Student>()).InstancePerLifetimeScope();
-            //builder.RegisterType<EfRepository<Student>>().As<IRepository<Student>>().InstancePerLifetimeScope();
-            //builder.RegisterControllers(typeFinder.GetAssemblies().ToArray());
             builder.RegisterGeneric(typeof(EfRepository<>)).As(typeof(IRepository<>)).InstancePerLifetimeScope();
+
             builder.RegisterType<StudentService>().As<IStudentService>().InstancePerLifetimeScope();
+
+            builder.RegisterType<CustomerService>().As<ICustomerService>().InstancePerLifetimeScope();
+            builder.RegisterType<FormsAuthenticationService>().As<IAuthenticationService>().InstancePerLifetimeScope();
+            builder.RegisterType<WebWorkContext>().As<IWorkContext>().InstancePerLifetimeScope();
+            builder.RegisterType<PermissionService>().As<IPermissionService>().InstancePerLifetimeScope();
         }
 
         public int Order
