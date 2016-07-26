@@ -1,4 +1,6 @@
-﻿using Nop.Services;
+﻿using Nop.Core;
+using Nop.Core.Domain.Customers;
+using Nop.Services;
 using Nop.Web.Extensions;
 using Nop.Web.Models;
 using System;
@@ -12,14 +14,17 @@ namespace Nop.Web.Controllers
     public class HomeController : Controller
     {
         private readonly IStudentService studentService;
+        private readonly IWorkContext _workContext;
 
-        public HomeController(IStudentService studentService)
+        public HomeController(IStudentService studentService, IWorkContext workContext)
         {
             this.studentService = studentService;
+            this._workContext = workContext;
         }
 
         public ActionResult Index()
         {
+            Customer customer = _workContext.CurrentCustomer;
             return View();
         }
 

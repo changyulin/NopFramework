@@ -16,14 +16,36 @@ namespace Nop.Services.Customers
             this._customerService = customerService;
         }
 
-        public CustomerLoginResultsEnum ValidateCustomer(string usernameOrEmail, string password)
+        public CustomerLoginResultsEnum ValidateCustomer(string email, string password)
         {
-            throw new NotImplementedException();
+            var customer = _customerService.GetCustomerByEmail(email);
+            if (customer == null)
+                return CustomerLoginResultsEnum.CustomerNotExist;
+            if (customer.Deleted)
+                return CustomerLoginResultsEnum.Deleted;
+            if (!customer.Active)
+                return CustomerLoginResultsEnum.NotActive;
+            //only registered can login
+            if (!customer.IsRegistered())
+                return CustomerLoginResultsEnum.NotRegistered;
+
+            bool isValid = password == customer.Password;
+            if (!isValid)
+                return CustomerLoginResultsEnum.WrongPassword;
+
+            customer.LastLoginDateUtc = DateTime.UtcNow;
+            _customerService.UpdateCustomer(customer);
+
+            return CustomerLoginResultsEnum.Successful;
         }
 
         public CustomerRegistrationResult RegisterCustomer(CustomerRegistrationRequest request)
         {
             var result = new CustomerRegistrationResult();
+            request.Customer.Username = request.Username;
+            request.Customer.Email = request.Email;
+            request.Customer.Username = request.Email;
+            request.Customer.Password = request.Password;
             request.Customer.Active = request.IsApproved;
 
             //add to 'Registered' role

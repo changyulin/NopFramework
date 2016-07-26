@@ -46,6 +46,7 @@ namespace Nop.Services.Authentication
 
         public void SignIn(Customer customer, bool createPersistentCookie)
         {
+            //set auth cookie start
             var now = DateTime.UtcNow.ToLocalTime();
             var ticket = new FormsAuthenticationTicket(
                 1 /*version*/,
@@ -70,6 +71,15 @@ namespace Nop.Services.Authentication
             }
 
             _httpContext.Response.Cookies.Add(cookie);
+            //set auth cookie end
+            //FormsAuthentication.FormsCookieName, FormsAuthentication.Timeout 等值都在web.config中设置
+            //<system.web>
+            //<authentication mode="Forms">
+            //  <forms name="NOPCOMMERCE.AUTH" loginUrl="~/login" protection="All" timeout="43200" path="/" requireSSL="false" slidingExpiration="true" />
+            //</authentication>
+
+            //FormsAuthentication.SetAuthCookie等同于上面的set auth cookie
+            //FormsAuthentication.SetAuthCookie(customer.Email, createPersistentCookie);
             _cachedCustomer = customer;
         }
 

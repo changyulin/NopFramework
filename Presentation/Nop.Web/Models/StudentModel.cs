@@ -17,5 +17,6 @@ namespace Nop.Web.Models
         [Display(Name = "年龄")]
         public int? Age { get; set; }
 
+        public string JxCode { get; set; }
     }
 }

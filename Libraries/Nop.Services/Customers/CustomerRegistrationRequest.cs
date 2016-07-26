@@ -25,16 +25,12 @@ namespace Nop.Services.Customers
         /// <param name="isApproved">Is approved</param>
         public CustomerRegistrationRequest(Customer customer, string email, string username,
             string password,
-            PasswordFormatEnum passwordFormat,
-            int storeId,
             bool isApproved = true)
         {
             this.Customer = customer;
             this.Email = email;
             this.Username = username;
             this.Password = password;
-            this.PasswordFormat = passwordFormat;
-            this.StoreId = storeId;
             this.IsApproved = isApproved;
         }
 
@@ -50,18 +46,12 @@ namespace Nop.Services.Customers
         /// Username
         /// </summary>
         public string Username { get; set; }
+
         /// <summary>
         /// Password
         /// </summary>
         public string Password { get; set; }
-        /// <summary>
-        /// Password format
-        /// </summary>
-        public PasswordFormatEnum PasswordFormat { get; set; }
-        /// <summary>
-        /// Store identifier
-        /// </summary>
-        public int StoreId { get; set; }
+
         /// <summary>
         /// Is approved
         /// </summary>

@@ -14,6 +14,7 @@ namespace Nop.Web.Infrastructure
         public void Register(ContainerBuilder builder, ITypeFinder typeFinder, NopConfig config)
         {
             builder.RegisterType<HomeController>().InstancePerLifetimeScope();
+            builder.RegisterType<AccountController>().InstancePerLifetimeScope();
         }
 
         public int Order

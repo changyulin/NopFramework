@@ -14,8 +14,8 @@ namespace Nop.Web.Infrastructure
     {
         public void Execute()
         {
-            Mapper.Initialize(cfg => cfg.CreateMap<StudentModel, Student>());
-            Mapper.Initialize(cfg => cfg.CreateMap<RegisterViewModel, Customer>());
+            Mapper.Initialize(cfg => cfg.CreateMap<StudentModel, Student>().ForMember(d=>d.Id,op=>op.Ignore()));
+            //Mapper.Initialize(cfg => cfg.CreateMap<RegisterViewModel, Customer>());
         }
 
         public int Order

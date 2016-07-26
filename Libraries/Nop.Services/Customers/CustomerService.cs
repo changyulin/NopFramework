@@ -129,12 +129,18 @@ namespace Nop.Services.Customers
 
         public void InsertCustomer(Customer customer)
         {
-            throw new NotImplementedException();
+            if (customer == null)
+                throw new ArgumentNullException("customer");
+
+            _customerRepository.Insert(customer);
         }
 
         public void UpdateCustomer(Customer customer)
         {
-            throw new NotImplementedException();
+            if (customer == null)
+                throw new ArgumentNullException("customer");
+
+            _customerRepository.Update(customer);
         }
 
         public void DeleteCustomerRole(CustomerRole customerRole)

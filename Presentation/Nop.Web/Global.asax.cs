@@ -1,4 +1,5 @@
-﻿using FluentValidation.Attributes;
+﻿using AutoMapper;
+using FluentValidation.Attributes;
 using FluentValidation.Mvc;
 using Nop.Core.Infrastructure;
 using System.Web.Mvc;
@@ -16,6 +17,7 @@ namespace Nop.Web
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
             EngineContext.Initialize(false);
+            Mapper.AssertConfigurationIsValid();
 
             DataAnnotationsModelValidatorProvider.AddImplicitRequiredAttributeForValueTypes = false;
             ModelValidatorProviders.Providers.Add(new FluentValidationModelValidatorProvider(new AttributedValidatorFactory()));

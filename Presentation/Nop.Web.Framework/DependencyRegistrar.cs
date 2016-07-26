@@ -24,7 +24,17 @@ namespace Nop.Web.Framework
 
         public virtual void Register(ContainerBuilder builder, ITypeFinder typeFinder, NopConfig config)
         {
-            builder.Register(c => new HttpContextWrapper(HttpContext.Current) as HttpContextBase).As<HttpContextBase>().InstancePerLifetimeScope();
+            builder.Register(c => new HttpContextWrapper(HttpContext.Current) as HttpContextBase)
+                .As<HttpContextBase>().InstancePerLifetimeScope();
+            builder.Register(c => c.Resolve<HttpContextBase>().Request)
+               .As<HttpRequestBase>().InstancePerLifetimeScope();
+            builder.Register(c => c.Resolve<HttpContextBase>().Response)
+                .As<HttpResponseBase>().InstancePerLifetimeScope();
+            builder.Register(c => c.Resolve<HttpContextBase>().Server)
+                .As<HttpServerUtilityBase>().InstancePerLifetimeScope();
+            builder.Register(c => c.Resolve<HttpContextBase>().Session)
+                .As<HttpSessionStateBase>().InstancePerLifetimeScope();
+
             builder.RegisterType<MemoryCacheManager>().As<ICacheManager>().InstancePerLifetimeScope();
             builder.RegisterType<ObjectContext>().As<IDbContext>().InstancePerLifetimeScope();
             builder.RegisterGeneric(typeof(EfRepository<>)).As(typeof(IRepository<>)).InstancePerLifetimeScope();
@@ -35,6 +45,7 @@ namespace Nop.Web.Framework
             builder.RegisterType<FormsAuthenticationService>().As<IAuthenticationService>().InstancePerLifetimeScope();
             builder.RegisterType<WebWorkContext>().As<IWorkContext>().InstancePerLifetimeScope();
             builder.RegisterType<PermissionService>().As<IPermissionService>().InstancePerLifetimeScope();
+            builder.RegisterType<CustomerRegistrationService>().As<ICustomerRegistrationService>().InstancePerLifetimeScope();
         }
 
         public int Order

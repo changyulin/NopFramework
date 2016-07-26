@@ -9,6 +9,9 @@ using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
 using Nop.Web.Models;
+using Nop.Core;
+using Nop.Services.Customers;
+using Nop.Services.Authentication;
 
 namespace Nop.Web.Controllers
 {
@@ -18,8 +21,20 @@ namespace Nop.Web.Controllers
         private ApplicationSignInManager _signInManager;
         private ApplicationUserManager _userManager;
 
-        public AccountController()
+        private readonly IWorkContext _workContext;
+        private readonly ICustomerRegistrationService _customerRegistrationService;
+        private readonly ICustomerService _customerService;
+        private readonly IAuthenticationService _authenticationService;
+
+        public AccountController(IWorkContext workContext, 
+            ICustomerRegistrationService customerRegistrationService,
+            ICustomerService customerService,
+            IAuthenticationService authenticationService)
         {
+            this._workContext = workContext;
+            this._customerRegistrationService = customerRegistrationService;
+            this._customerService = customerService;
+            this._authenticationService = authenticationService;
         }
 
         public AccountController(ApplicationUserManager userManager, ApplicationSignInManager signInManager )
@@ -66,29 +81,63 @@ namespace Nop.Web.Controllers
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Login(LoginViewModel model, string returnUrl)
+        public ActionResult Login(LoginViewModel model, string returnUrl)
         {
             if (!ModelState.IsValid)
             {
                 return View(model);
             }
 
+            var loginResult = _customerRegistrationService.ValidateCustomer(model.Email, model.Password);
+            
+            switch (loginResult)
+            {
+                case CustomerLoginResultsEnum.Successful:
+                    {
+                        var customer = _customerService.GetCustomerByEmail(model.Email);
+
+                        //sign in new customer
+                        _authenticationService.SignIn(customer, model.RememberMe);
+
+                        //if (String.IsNullOrEmpty(returnUrl) || !Url.IsLocalUrl(returnUrl))
+                        //    return RedirectToRoute("HomePage");
+                        return View(model);
+                    }
+                case CustomerLoginResultsEnum.CustomerNotExist:
+                    ModelState.AddModelError("", "Account.Login.WrongCredentials.CustomerNotExist");
+                    break;
+                case CustomerLoginResultsEnum.Deleted:
+                    ModelState.AddModelError("", "Account.Login.WrongCredentials.Deleted");
+                    break;
+                case CustomerLoginResultsEnum.NotActive:
+                    ModelState.AddModelError("", "Account.Login.WrongCredentials.NotActive");
+                    break;
+                case CustomerLoginResultsEnum.NotRegistered:
+                    ModelState.AddModelError("", "Account.Login.WrongCredentials.NotRegistered");
+                    break;
+                case CustomerLoginResultsEnum.WrongPassword:
+                default:
+                    ModelState.AddModelError("", "Account.Login.WrongCredentials");
+                    break;
+            }
             // This doesn't count login failures towards account lockout
             // To enable password failures to trigger account lockout, change to shouldLockout: true
-            var result = await SignInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, shouldLockout: false);
-            switch (result)
-            {
-                case SignInStatus.Success:
-                    return RedirectToLocal(returnUrl);
-                case SignInStatus.LockedOut:
-                    return View("Lockout");
-                case SignInStatus.RequiresVerification:
-                    return RedirectToAction("SendCode", new { ReturnUrl = returnUrl, RememberMe = model.RememberMe });
-                case SignInStatus.Failure:
-                default:
-                    ModelState.AddModelError("", "Invalid login attempt.");
-                    return View(model);
-            }
+            //var result = await SignInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, shouldLockout: false);
+            //switch (result)
+            //{
+            //    case SignInStatus.Success:
+            //        return RedirectToLocal(returnUrl);
+            //    case SignInStatus.LockedOut:
+            //        return View("Lockout");
+            //    case SignInStatus.RequiresVerification:
+            //        return RedirectToAction("SendCode", new { ReturnUrl = returnUrl, RememberMe = model.RememberMe });
+            //    case SignInStatus.Failure:
+            //    default:
+            //        ModelState.AddModelError("", "Invalid login attempt.");
+            //        return View(model);
+            //}
+
+            return View(model);
         }
 
         //
@@ -149,24 +198,23 @@ namespace Nop.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Register(RegisterViewModel model)
         {
-            //var customer = _workContext.CurrentCustomer;
+            var customer = _workContext.CurrentCustomer;
             if (ModelState.IsValid)
             {
-                var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
-                var result = await UserManager.CreateAsync(user, model.Password);
-                if (result.Succeeded)
-                {
-                    await SignInManager.SignInAsync(user, isPersistent:false, rememberBrowser:false);
-                    
-                    // For more information on how to enable account confirmation and password reset please visit http://go.microsoft.com/fwlink/?LinkID=320771
-                    // Send an email with this link
-                    // string code = await UserManager.GenerateEmailConfirmationTokenAsync(user.Id);
-                    // var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
-                    // await UserManager.SendEmailAsync(user.Id, "Confirm your account", "Please confirm your account by clicking <a href=\"" + callbackUrl + "\">here</a>");
-
-                    return RedirectToAction("Index", "Home");
-                }
-                AddErrors(result);
+                var registrationRequest = new CustomerRegistrationRequest(customer,
+                    model.Email,
+                    model.Email,
+                    model.Password,
+                    true);
+                var registrationResult = _customerRegistrationService.RegisterCustomer(registrationRequest);
+                //var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
+                //var result = await UserManager.CreateAsync(user, model.Password);
+                //if (result.Succeeded)
+                //{
+                //    await SignInManager.SignInAsync(user, isPersistent:false, rememberBrowser:false);
+                //    return RedirectToAction("Index", "Home");
+                //}
+                //AddErrors(result);
             }
 
             // If we got this far, something failed, redisplay form
@@ -392,7 +440,8 @@ namespace Nop.Web.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult LogOff()
         {
-            AuthenticationManager.SignOut();
+            _authenticationService.SignOut();
+            //AuthenticationManager.SignOut();
             return RedirectToAction("Index", "Home");
         }
 
